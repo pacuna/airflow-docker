@@ -1,0 +1,46 @@
+version: '3'
+services:
+  redis:
+    image: redis:4
+  db:
+    image: postgres:9.6
+    restart: always
+    env_file:
+      - postgres.env
+  initdb:
+    build: .
+    command: ["./wait-for-postgres.sh", "db", "airflow", "initdb"]
+    depends_on:
+      - db
+    env_file:
+      - airflow.env
+  webserver:
+    build: .
+    command: ["./wait-for-migrations.sh", "db", "airflow", "webserver"]
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./dags:/home/airflow/dags
+    env_file:
+      - airflow.env
+    depends_on:
+      - initdb
+  scheduler:
+    build: .
+    command: ["./wait-for-migrations.sh", "db", "airflow", "scheduler"]
+    volumes:
+      - ./dags:/home/airflow/dags
+    env_file:
+      - airflow.env
+    depends_on:
+      - initdb
+  worker:
+    build: .
+    command: ["./wait-for-migrations.sh", "db", "airflow", "worker"]
+    volumes:
+      - ./dags:/home/airflow/dags
+    env_file:
+      - airflow.env
+    depends_on:
+      - initdb
+      - redis
