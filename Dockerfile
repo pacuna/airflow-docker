@@ -4,6 +4,8 @@ RUN apt-get update && apt-get install -y \
   python \
   python-pip \
   postgresql-client
+
+ENV SLUGIFY_USES_TEXT_UNIDECODE=yes
 RUN pip install "apache-airflow[postgres,celery]" celery redis
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
