@@ -17,7 +17,14 @@ It uses the Celery Executor with Redis as the broker/backend and PostgreSQL as t
 All the configuration is done via environmental variables. If you want change these values or add
 new variables, you can modify the `env/airflow.env` file using the Airflow convention of
 `AIRFLOW__SECTION__VAR_NAME` where the section and var name are defined in the `airflow.cfg` file that
-comes with the airflow installation. The environmental variables will override any value from the cfg file.
+comes with the airflow installation. The environmental variables will override any value from the cfg file.   
+
+The airflow.env file contains an example fernet key that is used by all containers so they can all decrypt encrypted values. For any production use, this should be changed by creating a new value using
+
+```
+python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+```
+
 
 All the necessary Airflow processes including `airflow initdb` command, webserver, scheduler and worker are
 isolated in their own Docker container and with a proper startup control using custom scripts (`sh/wait-for-migrations.sh`, `sh/wait-for-postgres.sh`).
